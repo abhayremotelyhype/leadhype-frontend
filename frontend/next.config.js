@@ -21,26 +21,29 @@ const nextConfig = {
     return config;
   },
   async rewrites() {
+    // Get backend URL from environment variable with fallback
+    const backendUrl = process.env.BACKEND_API_URL || 'http://localhost:5010';
+
     return [
       {
         source: '/api/docs',
-        destination: 'http://localhost:5010/api/docs/', // Explicitly add trailing slash for Scalar
+        destination: `${backendUrl}/api/docs/`, // Explicitly add trailing slash for Scalar
       },
       {
         source: '/api/scalar.js',
-        destination: 'http://localhost:5010/api/docs/scalar.js', // Fix Scalar JS path
+        destination: `${backendUrl}/api/docs/scalar.js`, // Fix Scalar JS path
       },
       {
         source: '/api/scalar.aspnetcore.js',
-        destination: 'http://localhost:5010/api/docs/scalar.aspnetcore.js', // Fix Scalar ASP.NET JS path
+        destination: `${backendUrl}/api/docs/scalar.aspnetcore.js`, // Fix Scalar ASP.NET JS path
       },
       {
         source: '/api/docs/:path*',
-        destination: 'http://localhost:5010/api/docs/:path*', // Proxy Scalar assets
+        destination: `${backendUrl}/api/docs/:path*`, // Proxy Scalar assets
       },
       {
         source: '/api/:path*',
-        destination: 'http://localhost:5010/api/:path*', // Proxy to ASP.NET Core API
+        destination: `${backendUrl}/api/:path*`, // Proxy to backend API
       },
     ];
   },
