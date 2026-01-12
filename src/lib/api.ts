@@ -1,6 +1,6 @@
 // API Configuration and utilities
-// Using relative URLs for proxy server setup
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+// Using relative URLs - Next.js API routes will proxy to backend
+export const API_BASE = '';
 
 export const ENDPOINTS = {
   status: '/status',
