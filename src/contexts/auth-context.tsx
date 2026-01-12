@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_BASE } from '@/lib/api';
 
 interface User {
   id: string;
@@ -91,7 +92,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!refreshToken) return;
 
     try {
-      const response = await fetch('/api/auth/refresh', {
+      const url = API_BASE ? `${API_BASE}/api/auth/refresh` : '/api/auth/refresh';
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +155,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const response = await fetch('/api/auth/me', {
+      const url = API_BASE ? `${API_BASE}/api/auth/me` : '/api/auth/me';
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -186,7 +189,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await fetch('/api/auth/login', {
+      const url = API_BASE ? `${API_BASE}/api/auth/login` : '/api/auth/login';
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -238,7 +242,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Call logout API in background (non-blocking)
       if (token && refreshToken) {
-        fetch('/api/auth/logout', {
+        const url = API_BASE ? `${API_BASE}/api/auth/logout` : '/api/auth/logout';
+        fetch(url, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -260,7 +265,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!token) return;
 
     try {
-      const response = await fetch('/api/auth/me', {
+      const url = API_BASE ? `${API_BASE}/api/auth/me` : '/api/auth/me';
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
