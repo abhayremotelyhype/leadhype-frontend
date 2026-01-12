@@ -62,7 +62,7 @@ export function PageHeader({
                     title.toLowerCase().includes('campaigns') ? 'Campaign management' :
                     title.toLowerCase().includes('clients') ? 'Client management' :
                     title.toLowerCase().includes('email') ? 'Email management' :
-                    title.toLowerCase().includes('leadhype') ? 'Account management' :
+                    title.toLowerCase().includes('smartlead') ? 'Account management' :
                     title.toLowerCase().includes('dashboard') ? 'Performance metrics' :
                     'Management'
                   )}

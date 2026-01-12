@@ -1,6 +1,6 @@
-# LeadHype Frontend - Next.js
+# Smartlead Frontend - Next.js
 
-A modern Next.js frontend for the LeadHype email campaign management system.
+A modern Next.js frontend for the Smartlead email campaign management system.
 
 ## 🚀 Features
 
@@ -85,7 +85,7 @@ Type-safe API client with:
 - [x] **Clients page** - Standard sorting, search, responsive design
 - [x] **Analytics page** - Dashboard with metrics cards and chart placeholders
 - [x] **Settings page** - Theme switching, data sync settings, live preview
-- [x] **Index/Home page** - LeadHype account management with modals
+- [x] **Index/Home page** - Smartlead account management with modals
 - [x] **Sidebar navigation** - Collapsible, mobile-responsive, active states
 - [x] **Theme switching** - Light/dark mode with system preference
 - [x] **Toast notifications** - Success, error, info messages
