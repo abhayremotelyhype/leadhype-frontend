@@ -1,0 +1,12 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd Api && dotnet restore && dotnet publish -c Release -o out"
+
+[deploy]
+startCommand = "cd Api && dotnet out/Api.dll"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[env]
+ASPNETCORE_ENVIRONMENT = "Production"
+ASPNETCORE_URLS = "http://0.0.0.0:$PORT"
