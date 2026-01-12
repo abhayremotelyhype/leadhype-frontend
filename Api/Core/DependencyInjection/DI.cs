@@ -1,5 +1,3 @@
-using UtilityPack;
-
 namespace LeadHype.Api;
 
 public class DI
@@ -11,12 +9,11 @@ public class DI
 
     public static string AssemblyName { get; set; }
     public static IServiceProvider ServiceProvider { get; set; }
-    public static ILogFactory Logger { get; set; }
-    
+    public static ILoggerFactory? LoggerFactory { get; set; }
+
     public static void Build(string basePath)
     {
-        Logger = new BaseLogFactory([
-            new FileLogger(Path.Combine(basePath, "Data", "Logs")),
-        ]);
+        // Logging is now handled by built-in ASP.NET Core logging
+        // No need for custom file logger
     }
 }

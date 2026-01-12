@@ -5,9 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
-using UtilityPack;
 using static LeadHype.Api.DI;
-using static UtilityPack.Tasks;
 
 namespace LeadHype.Api.ServiceApis
 {

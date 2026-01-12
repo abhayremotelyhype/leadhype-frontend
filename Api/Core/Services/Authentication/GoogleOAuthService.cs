@@ -1,8 +1,6 @@
 using LeadHype.Api.ServiceApis;
 using Newtonsoft.Json;
 using OpenQA.Selenium;
-using UtilityPack;
-using static UtilityPack.Tasks;
 
 namespace LeadHype.Api;
 

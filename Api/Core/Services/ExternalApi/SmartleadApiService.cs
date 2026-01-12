@@ -5,9 +5,7 @@ using LeadHype.Api.Core.Models;
 using LeadHype.Api.Core.Models.API.Smartlead;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using UtilityPack;
 using static LeadHype.Api.DI;
-using static UtilityPack.Tasks;
 
 namespace LeadHype.Api;
 
