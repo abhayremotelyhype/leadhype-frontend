@@ -1336,7 +1336,7 @@ export default function DashboardPage() {
                           }}
                         />}
                       />
-                      <ChartLegend content={<ChartLegendContent />} />
+                      {/* <ChartLegend content={<ChartLegendContent />} /> */}
                       <Area 
                         type="monotone" 
                         dataKey="emailsSent" 
@@ -1609,7 +1609,7 @@ export default function DashboardPage() {
                           }}
                         />}
                       />
-                      <ChartLegend content={<ChartLegendContent />} />
+                      {/* <ChartLegend content={<ChartLegendContent />} /> */}
                       <Line 
                         type="monotone" 
                         dataKey="emailsSent" 
@@ -2136,10 +2136,10 @@ export default function DashboardPage() {
                               name
                             ]}
                           />} />
-                          <ChartLegend 
+                          {/* <ChartLegend
                             content={<ChartLegendContent />}
                             wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }}
-                          />
+                          /> */}
                         </PieChart>
                         </ChartContainer>
                       )}
