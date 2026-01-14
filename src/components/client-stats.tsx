@@ -1044,32 +1044,44 @@ export function ClientStats({ selectedClients, startDate, endDate, campaignScope
                   return null;
                 })()}
 
-                {statsData.clients.map((clientStat) => (
-                  <TableRow key={clientStat.client.id}>
+                {statsData.clients.map((clientStat) => {
+                  // Handle both nested structure (client.stats.timing) and flat structure (just client data)
+                  const client = clientStat.client || clientStat;
+                  const stats = clientStat.stats || {};
+                  const timing = clientStat.timing || {};
+
+                  // Safety check: Skip if client data is missing or malformed
+                  if (!client || !client.id || !client.name) {
+                    console.warn('[ClientStats] Skipping malformed client data:', clientStat);
+                    return null;
+                  }
+
+                  return (
+                  <TableRow key={client.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div 
+                        <div
                           className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
-                          style={{ backgroundColor: clientStat.client.color }}
+                          style={{ backgroundColor: client.color || '#3B82F6' }}
                         >
-                          {clientStat.client.name.charAt(0).toUpperCase()}
+                          {client.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <div className="font-semibold text-base">{clientStat.client.name}</div>
-                            {getStatusBadge(clientStat.client.status)}
+                            <div className="font-semibold text-base">{client.name}</div>
+                            {getStatusBadge(client.status)}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {clientStat.client.company || 'No company'}
+                            {client.company || 'No company'}
                           </div>
                           <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Target className="w-3 h-3" />
-                              <span>{clientStat.client.activeCampaignCount} active, {clientStat.client.campaignCount} total campaigns</span>
+                              <span>{client.activeCampaignCount || 0} active, {client.campaignCount || 0} total campaigns</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Mail className="w-3 h-3" />
-                              <span>{clientStat.client.emailAccountCount} accounts</span>
+                              <span>{client.emailAccountCount || 0} accounts</span>
                             </div>
                           </div>
                         </div>
@@ -1080,15 +1092,15 @@ export function ClientStats({ selectedClients, startDate, endDate, campaignScope
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 text-sm">
                           <Mail className="w-4 h-4 text-muted-foreground" />
-                          <span>{clientStat.stats.totalSent.toLocaleString()} sent</span>
+                          <span>{(stats.totalSent || 0).toLocaleString()} sent</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           <Reply className="w-4 h-4 text-muted-foreground" />
-                          <span>{clientStat.stats.totalReplies.toLocaleString()} replies</span>
+                          <span>{(stats.totalReplies || 0).toLocaleString()} replies</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           <CheckCircle className="w-4 h-4 text-green-600" />
-                          <span className="text-green-600">{clientStat.stats.positiveReplies.toLocaleString()} positive</span>
+                          <span className="text-green-600">{(stats.positiveReplies || 0).toLocaleString()} positive</span>
                         </div>
                       </div>
                     </TableCell>
@@ -1097,7 +1109,7 @@ export function ClientStats({ selectedClients, startDate, endDate, campaignScope
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm">
-                          {clientStat.timing.lastReplyRelative || 'No replies yet'}
+                          {timing.lastReplyRelative || 'No replies yet'}
                         </span>
                       </div>
                     </TableCell>
@@ -1106,7 +1118,7 @@ export function ClientStats({ selectedClients, startDate, endDate, campaignScope
                       <div className="flex items-center gap-2">
                         <TrendingUp className="w-4 h-4 text-green-600" />
                         <span className="text-sm">
-                          {clientStat.timing.lastPositiveReplyRelative || 'No positive replies yet'}
+                          {timing.lastPositiveReplyRelative || 'No positive replies yet'}
                         </span>
                       </div>
                     </TableCell>
@@ -1115,7 +1127,7 @@ export function ClientStats({ selectedClients, startDate, endDate, campaignScope
                       <div className="flex items-center gap-2">
                         <Activity className="w-4 h-4 text-blue-600" />
                         <span className="text-sm">
-                          {clientStat.timing.lastContactedRelative || 'No contacts yet'}
+                          {timing.lastContactedRelative || 'No contacts yet'}
                         </span>
                       </div>
                     </TableCell>
@@ -1123,33 +1135,34 @@ export function ClientStats({ selectedClients, startDate, endDate, campaignScope
                     <TableCell className="text-right">
                       <div className="space-y-1">
                         <div className="text-sm font-medium">
-                          {clientStat.stats.totalReplies > 0 && !isNaN(clientStat.stats.replyRate)
-                            ? `${clientStat.stats.replyRate.toFixed(1)}% reply rate`
+                          {(stats.totalReplies || 0) > 0 && !isNaN(stats.replyRate || 0)
+                            ? `${(stats.replyRate || 0).toFixed(1)}% reply rate`
                             : 'No replies'
                           }
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {clientStat.stats.totalReplies > 0 && !isNaN(clientStat.stats.emailsPerReply)
-                            ? `${Math.round(clientStat.stats.emailsPerReply).toLocaleString()} sent to get 1 reply`
+                          {(stats.totalReplies || 0) > 0 && !isNaN(stats.emailsPerReply || 0)
+                            ? `${Math.round(stats.emailsPerReply || 0).toLocaleString()} sent to get 1 reply`
                             : 'No replies'
                           }
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {clientStat.stats.positiveReplies > 0 && !isNaN(clientStat.stats.repliesPerPositiveReply)
-                            ? `${Math.round(clientStat.stats.repliesPerPositiveReply).toLocaleString()} replies to get 1 positive reply`
+                          {(stats.positiveReplies || 0) > 0 && !isNaN(stats.repliesPerPositiveReply || 0)
+                            ? `${Math.round(stats.repliesPerPositiveReply || 0).toLocaleString()} replies to get 1 positive reply`
                             : 'No positive replies'
                           }
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {clientStat.stats.positiveReplies > 0 && !isNaN(clientStat.stats.positiveReplyPercentage)
-                            ? `${clientStat.stats.positiveReplyPercentage.toFixed(1)}% positive rate`
+                          {(stats.positiveReplies || 0) > 0 && !isNaN(stats.positiveReplyPercentage || 0)
+                            ? `${(stats.positiveReplyPercentage || 0).toFixed(1)}% positive rate`
                             : 'No positive replies'
                           }
                         </div>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

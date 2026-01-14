@@ -10,13 +10,12 @@ import { Progress } from '@/components/ui/progress';
 import { PageHeader } from '@/components/page-header';
 import { ProtectedRoute } from '@/components/protected-route';
 import { apiClient, ENDPOINTS, handleApiErrorWithToast } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import type { AnalyticsDashboardResponse, AnalyticsOverview, PerformanceTrendDataPoint, EmailAccountPerformanceMetric, ClientComparisonMetric } from '@/types';
 
 export default function AnalyticsPage() {
-  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [period, setPeriod] = useState('30d');

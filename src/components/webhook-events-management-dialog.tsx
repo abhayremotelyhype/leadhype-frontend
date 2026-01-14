@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { apiClient, ENDPOINTS, formatDateTime, handleApiErrorWithToast } from '@/lib/api'
 import type { WebhookEventConfig } from '@/types'
 import { WebhookEventDialog } from '@/components/webhook-event-dialog'
@@ -43,7 +43,6 @@ export function WebhookEventsManagementDialog({
   const [loading, setLoading] = useState(false)
   const [eventDialogOpen, setEventDialogOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<WebhookEventConfig | null>(null)
-  const { toast } = useToast()
 
   const fetchEvents = useCallback(async () => {
     if (!open) return
@@ -81,10 +80,7 @@ export function WebhookEventsManagementDialog({
 
     try {
       await apiClient.delete(`${ENDPOINTS.webhookEvents}/${event.id}`)
-      toast({
-        title: 'Success',
-        description: 'Webhook event deleted successfully',
-      })
+      toast.success('Webhook event deleted successfully')
       fetchEvents()
     } catch (error) {
       handleApiErrorWithToast(error, 'delete webhook event', toast)
@@ -96,10 +92,7 @@ export function WebhookEventsManagementDialog({
       await apiClient.put(`${ENDPOINTS.webhookEvents}/${event.id}`, {
         isActive: !event.isActive
       })
-      toast({
-        title: 'Success',
-        description: `Event ${event.isActive ? 'deactivated' : 'activated'} successfully`,
-      })
+      toast.success(`Event ${event.isActive ? 'deactivated' : 'activated'} successfully`)
       fetchEvents()
     } catch (error) {
       handleApiErrorWithToast(error, 'update webhook event', toast)

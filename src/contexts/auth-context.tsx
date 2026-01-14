@@ -108,13 +108,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data.user) {
           setUser(data.user);
         }
-      } else {
-        // Refresh failed, log out user
+      } else if (response.status === 401 || response.status === 403) {
+        // Token is invalid/expired - log out user
         logout();
       }
+      // For other errors (500, 502, etc.), keep session - backend might be temporarily unavailable
     } catch (error) {
       console.error('Token refresh failed:', error);
-      logout();
+      // Network error - don't log out, backend might be temporarily unavailable
+      // The user can continue with their current session until next refresh attempt
     }
   };
 
@@ -168,16 +170,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (response.status === 401) {
         // Token might be expired, try to refresh
         await refreshTokenIfNeeded();
-      } else {
+      } else if (response.status === 403) {
+        // Forbidden - remove invalid tokens
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
       }
+      // For other errors (500, 502, etc.), keep tokens - backend might be temporarily unavailable
     } catch (error) {
       // Don't log abort errors as they are intentional
       if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Auth check failed:', error);
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        // Don't remove tokens on network errors - backend might be temporarily unavailable
+        // Only the explicit 401/403 response handlers above should remove tokens
+        // This allows the app to recover when backend comes back online
       }
     } finally {
       setIsLoading(false);

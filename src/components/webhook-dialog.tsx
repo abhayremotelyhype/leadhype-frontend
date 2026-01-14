@@ -26,7 +26,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Plus, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { apiClient, ENDPOINTS, handleApiErrorWithToast } from '@/lib/api'
 import type { Webhook, CreateWebhookRequest, UpdateWebhookRequest } from '@/types'
 
@@ -47,7 +47,6 @@ interface WebhookFormData {
 
 export function WebhookDialog({ open, onClose, webhook, onSaved }: WebhookDialogProps) {
   const [loading, setLoading] = useState(false)
-  const { toast } = useToast()
 
   const form = useForm<WebhookFormData>({
     defaultValues: {
@@ -111,11 +110,8 @@ export function WebhookDialog({ open, onClose, webhook, onSaved }: WebhookDialog
         }
 
         await apiClient.put(`${ENDPOINTS.webhooks}/${webhook.id}`, updateData)
-        
-        toast({
-          title: 'Success',
-          description: 'Webhook updated successfully',
-        })
+
+        toast.success('Webhook updated successfully')
       } else {
         // Create new webhook
         const createData: CreateWebhookRequest = {
@@ -127,11 +123,8 @@ export function WebhookDialog({ open, onClose, webhook, onSaved }: WebhookDialog
         }
 
         await apiClient.post(ENDPOINTS.webhooks, createData)
-        
-        toast({
-          title: 'Success',
-          description: 'Webhook created successfully',
-        })
+
+        toast.success('Webhook created successfully')
       }
 
       onSaved()

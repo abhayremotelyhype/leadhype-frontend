@@ -2016,11 +2016,18 @@ export default function DashboardPage() {
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
                       ) : (
-                        <ChartContainer config={emailAccountChartConfig} className="w-full h-full">
+                        <ChartContainer config={{}} className="w-full h-full">
                         <BarChart
-                          data={
-                            Object.entries(currentEmailAccountSummary.accountsByStatus || {})
-                              .filter(([status]) => status in emailAccountChartConfig) // Only include statuses that have chart config
+                          data={(() => {
+                            console.log('[Dashboard] Raw accountsByStatus from backend:', currentEmailAccountSummary.accountsByStatus);
+                            const statusData = Object.entries(currentEmailAccountSummary.accountsByStatus || {})
+                              .filter(([status]) => {
+                                const isValid = status in emailAccountChartConfig;
+                                if (!isValid) {
+                                  console.warn('[Dashboard] Filtered out unknown status:', status);
+                                }
+                                return isValid;
+                              })
                               .map(([status, data]) => ({
                                 name: status === 'active' ? 'Active' :
                                       status === 'warming' ? 'Warming Up' :
@@ -2029,9 +2036,15 @@ export default function DashboardPage() {
                                       status.charAt(0).toUpperCase() + status.slice(1),
                                 value: data.count,
                                 percentage: data.percentage,
-                                fill: `var(--color-${status})`
-                              }))
-                          }
+                                fill: status === 'active' ? '#22C55E' :
+                                      status === 'warming' ? '#F59E0B' :
+                                      status === 'paused' ? '#94A3B8' :
+                                      status === 'issues' ? '#EF4444' :
+                                      '#6B7280'
+                              }));
+                            console.log('[Dashboard] Status chart data:', statusData);
+                            return statusData;
+                          })()}
                           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                         >
                           <CartesianGrid strokeDasharray="3 3" />
@@ -2041,22 +2054,14 @@ export default function DashboardPage() {
                             tick={{ fontSize: 11 }}
                           />
                           <YAxis fontSize={11} tick={{ fontSize: 11 }} />
-                          <ChartTooltip content={<ChartTooltipContent 
+                          <ChartTooltip content={<ChartTooltipContent
                             formatter={(value, name, props) => [
                               `${value} accounts (${props.payload?.percentage?.toFixed(1)}%)`,
                               name
                             ]}
                           />} />
-                          <Bar dataKey="value" radius={4}>
-                            {[
-                              { name: 'Active', fill: 'var(--color-active)' },
-                              { name: 'Warming Up', fill: 'var(--color-warming)' },
-                              { name: 'Paused', fill: 'var(--color-paused)' },
-                              { name: 'Issues', fill: 'var(--color-issues)' }
-                            ].map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.fill} />
-                            ))}
-                          </Bar>
+                          <Bar dataKey="value" radius={4} />
+
                         </BarChart>
                         </ChartContainer>
                       )}

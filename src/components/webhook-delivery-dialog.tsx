@@ -39,7 +39,7 @@ import {
   Copy,
   ExternalLink
 } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { apiClient, ENDPOINTS, formatDateTime, handleApiErrorWithToast } from '@/lib/api'
 import { formatEventType } from '@/lib/utils'
 import type { WebhookDelivery } from '@/types'
@@ -74,7 +74,6 @@ export function WebhookDeliveryDialog({ open, onClose, webhookId, webhookName, s
     hasNext: false,
     hasPrevious: false
   })
-  const { toast } = useToast()
 
   const fetchDeliveries = async (page: number = 1, isPagination: boolean = false) => {
     if (!webhookId) return
@@ -179,10 +178,7 @@ export function WebhookDeliveryDialog({ open, onClose, webhookId, webhookName, s
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast({
-      title: 'Copied',
-      description: 'Content copied to clipboard',
-    })
+    toast.success('Content copied to clipboard')
   }
 
   const formatResponseBody = (responseBody: string) => {

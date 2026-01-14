@@ -135,47 +135,49 @@ class ApiClient {
                 const refreshData = await refreshResponse.json();
                 localStorage.setItem('accessToken', refreshData.accessToken);
                 localStorage.setItem('refreshToken', refreshData.refreshToken);
-                
+
                 // Retry the original request with new token
                 config.headers = {
                   ...config.headers,
                   Authorization: `Bearer ${refreshData.accessToken}`,
                 };
-                
+
                 const retryResponse = await fetch(url, config);
                 if (retryResponse.ok) {
                   if (responseType === 'blob') {
                     return await retryResponse.blob() as T;
                   }
-                  
+
                   // Handle empty responses (like 204 NoContent) in retry
                   if (retryResponse.status === 204 || retryResponse.headers.get('content-length') === '0') {
                     return null as T;
                   }
-                  
+
                   // Check if response has content before trying to parse JSON
                   const retryContentType = retryResponse.headers.get('content-type');
                   if (!retryContentType || !retryContentType.includes('application/json')) {
                     const retryText = await retryResponse.text();
                     return (retryText || null) as T;
                   }
-                  
+
                   return await retryResponse.json();
                 }
+              } else if (refreshResponse.status === 401 || refreshResponse.status === 403) {
+                // Refresh token is invalid - clear tokens and redirect to login
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+
+                setTimeout(() => {
+                  window.location.href = '/login';
+                }, 1000);
               }
+              // For other refresh errors (500, 502, network), keep tokens and let request fail
             } catch (refreshError) {
               console.error('Token refresh failed:', refreshError);
+              // Network error during refresh - don't remove tokens
+              // Backend might be temporarily unavailable, let the original request fail
             }
           }
-          
-          // If refresh failed or no refresh token, clear tokens and redirect
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          
-          // Redirect to login after a short delay to allow error to be handled
-          setTimeout(() => {
-            window.location.href = '/login';
-          }, 1000);
         }
         
         throw apiError;
@@ -292,26 +294,16 @@ export function handleApiErrorWithToast(error: any, context: string, toastFn: an
   console.error(`Failed ${context}:`, error);
 
   if (error.isAuthError) {
-    toastFn.error('Authentication Error', {
-      description: 'Your session has expired. Redirecting to login...',
-    });
+    toastFn.error('Your session has expired. Redirecting to login...');
   } else if (error.isForbidden) {
-    toastFn.error('Access Denied', {
-      description: `You do not have permission to ${context}.`,
-    });
+    toastFn.error(`You do not have permission to ${context}.`);
   } else if (error.isServerError) {
-    toastFn.error('Server Error', {
-      description: `Server error occurred: ${error.detail || 'Please try again later.'}`,
-    });
+    toastFn.error(`Server error occurred: ${error.detail || 'Please try again later.'}`);
   } else if (error.isNetworkError) {
-    toastFn.error('Connection Error', {
-      description: `Failed to ${context}. Please check your connection and try again.`,
-    });
+    toastFn.error(`Failed to ${context}. Please check your connection and try again.`);
   } else {
     const errorMessage = error.detail || error.message || 'An unexpected error occurred.';
-    toastFn.error('Error', {
-      description: `Failed to ${context}: ${errorMessage}`,
-    });
+    toastFn.error(`Failed to ${context}: ${errorMessage}`);
   }
 }
 

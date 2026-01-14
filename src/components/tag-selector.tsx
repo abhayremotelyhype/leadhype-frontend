@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Tags, X, Plus } from 'lucide-react';
 import { apiClient, handleApiErrorWithToast, ENDPOINTS } from '@/lib/api';
 
@@ -26,7 +26,6 @@ export function TagSelector({ entityType, entityId, selectedTags, onTagsChange, 
   const [inputValue, setInputValue] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
 
   // Common tag colors for visual consistency
   const TAG_COLORS = [
@@ -64,11 +63,7 @@ export function TagSelector({ entityType, entityId, selectedTags, onTagsChange, 
     // Check if there's unsaved text in the input
     const trimmedInput = inputValue.trim();
     if (trimmedInput) {
-      toast({
-        variant: 'destructive',
-        title: 'Unsaved Tag',
-        description: `You have typed "${trimmedInput}" but haven't added it as a tag. Press Enter to add it, or clear the input to continue.`,
-      });
+      toast.error(`You have typed "${trimmedInput}" but haven't added it as a tag. Press Enter to add it, or clear the input to continue.`);
       // Focus the input to highlight the unsaved text
       inputRef.current?.focus();
       return;
@@ -81,13 +76,10 @@ export function TagSelector({ entityType, entityId, selectedTags, onTagsChange, 
         : `${ENDPOINTS.emailAccounts}/${entityId}/tags`;
 
       const response = await apiClient.post(endpoint, tempSelectedTags);
-      
+
       onTagsChange(tempSelectedTags);
       setDialogOpen(false);
-      toast({
-        title: 'Success',
-        description: 'Tags updated successfully',
-      });
+      toast.success('Tags updated successfully');
     } catch (error: any) {
       handleApiErrorWithToast(error, 'update tags', toast);
     } finally {
@@ -102,13 +94,10 @@ export function TagSelector({ entityType, entityId, selectedTags, onTagsChange, 
         : `${ENDPOINTS.emailAccounts}/${entityId}/tags/${encodeURIComponent(tagName)}`;
 
       await apiClient.delete(endpoint);
-      
+
       const updatedTags = selectedTags.filter(tag => tag !== tagName);
       onTagsChange(updatedTags);
-      toast({
-        title: 'Success',
-        description: 'Tag removed successfully',
-      });
+      toast.success('Tag removed successfully');
     } catch (error: any) {
       handleApiErrorWithToast(error, 'remove tag', toast);
     }
@@ -141,11 +130,7 @@ export function TagSelector({ entityType, entityId, selectedTags, onTagsChange, 
 
     // Check if tag already exists
     if (tempSelectedTags.includes(tagName)) {
-      toast({
-        variant: 'destructive',
-        title: 'Tag Already Exists',
-        description: 'This tag is already selected',
-      });
+      toast.error('This tag is already selected');
       setInputValue('');
       setEditingIndex(null);
       return;

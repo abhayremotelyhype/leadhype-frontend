@@ -1,0 +1,80 @@
+================================================================================
+ENVIRONMENT VARIABLES FOR VERCEL FRONTEND
+Copy these to: Vercel Dashboard → Frontend Project → Settings → Environment Variables
+================================================================================
+
+CRITICAL - BACKEND API URL:
+---------------------------
+BACKEND_API_URL=https://api.leadhype-portal.site
+
+# OR (both work, but BACKEND_API_URL is preferred for server-side):
+NEXT_PUBLIC_API_URL=https://api.leadhype-portal.site
+
+
+================================================================================
+HOW TO SET IN VERCEL:
+================================================================================
+
+1. Go to Vercel Dashboard: https://vercel.com/dashboard
+2. Select your FRONTEND project
+3. Go to Settings → Environment Variables
+4. Click "Add New"
+5. Set:
+   - Key: BACKEND_API_URL
+   - Value: https://api.leadhype-portal.site
+   - Environment: Production (and Preview if you want)
+6. Click "Save"
+7. REDEPLOY the frontend project
+
+
+================================================================================
+FOR LOCAL DEVELOPMENT (.env.local):
+================================================================================
+
+Create /Users/abhaybhosale/RiderProjects/Leadhype/frontend/.env.local with:
+
+BACKEND_API_URL=http://localhost:5010
+
+This allows you to develop locally while production uses the deployed backend.
+
+
+================================================================================
+TESTING:
+================================================================================
+
+After deploying with the env var set:
+
+1. Visit: https://leadhype-portal.site
+2. Try to log in
+3. Open DevTools → Network tab
+4. Look for /api/auth/login request
+5. Check if it's successfully proxying to api.leadhype-portal.site
+
+If you see any errors, check:
+- Backend is deployed and accessible at https://api.leadhype-portal.site/api/status
+- CORS is configured in backend with ALLOWED_ORIGINS=https://leadhype-portal.site
+
+
+================================================================================
+COMMON ISSUES & FIXES:
+================================================================================
+
+Issue 1: Still redirecting to login
+----------------------------------
+- Clear browser cache / try incognito
+- Check if accessToken exists in localStorage
+- Verify backend CORS allows your frontend domain
+
+Issue 2: 502 Bad Gateway
+------------------------
+- Backend might not be deployed yet
+- Check backend URL is correct
+- Verify backend is running: curl https://api.leadhype-portal.site/api/status
+
+Issue 3: CORS errors in console
+-------------------------------
+- Update backend ALLOWED_ORIGINS to include https://leadhype-portal.site
+- Redeploy backend after changing env vars
+
+
+================================================================================

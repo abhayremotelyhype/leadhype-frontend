@@ -27,7 +27,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useForm } from 'react-hook-form'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { apiClient, ENDPOINTS, handleApiErrorWithToast, PaginatedResponse } from '@/lib/api'
 import type { 
   WebhookEventConfig, 
@@ -104,8 +104,6 @@ export function WebhookEventDialog({
   
   // Ref for scroll container
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  
-  const { toast } = useToast()
 
   const form = useForm<EventFormData>({
     defaultValues: {
@@ -506,11 +504,8 @@ export function WebhookEventDialog({
         }
 
         await apiClient.put(`${ENDPOINTS.webhookEvents}/${eventConfig.id}`, updateData)
-        
-        toast({
-          title: 'Success',
-          description: 'Webhook event updated successfully',
-        })
+
+        toast.success('Webhook event updated successfully')
       } else {
         // Create new event config
         const createData: CreateWebhookEventConfigRequest = {
@@ -523,11 +518,8 @@ export function WebhookEventDialog({
         }
 
         await apiClient.post(ENDPOINTS.webhookEvents, createData)
-        
-        toast({
-          title: 'Success',
-          description: 'Webhook event created successfully',
-        })
+
+        toast.success('Webhook event created successfully')
       }
 
       onSaved()

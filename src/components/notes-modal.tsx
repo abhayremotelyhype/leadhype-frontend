@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { apiClient, handleApiErrorWithToast } from '@/lib/api';
 import { FileText, Loader2 } from 'lucide-react';
 
@@ -37,7 +37,6 @@ export function NotesModal({
 }: NotesModalProps) {
   const [notes, setNotes] = useState(initialNotes || '');
   const [saving, setSaving] = useState(false);
-  const { toast } = useToast();
 
   // Reset notes when modal opens/closes or initialNotes change
   useEffect(() => {
@@ -59,10 +58,7 @@ export function NotesModal({
       });
 
       onNotesUpdated(notes.trim() || null);
-      toast({
-        title: "Success",
-        description: `Notes updated for ${itemType === 'campaign' ? 'campaign' : 'email account'}`,
-      });
+      toast.success(`Notes updated for ${itemType === 'campaign' ? 'campaign' : 'email account'}`);
       onClose();
     } catch (error: any) {
       handleApiErrorWithToast(error, 'update notes', toast);
