@@ -48,11 +48,20 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
       }
     }
 
-    // Forward headers (excluding some Next.js specific ones)
+    // Forward headers (excluding some Next.js specific ones and cache headers)
     const headers = new Headers();
     request.headers.forEach((value, key) => {
-      // Skip host and connection headers
-      if (!['host', 'connection', 'x-forwarded-host', 'x-forwarded-proto'].includes(key.toLowerCase())) {
+      // Skip host, connection, and cache-related headers that can cause 304 responses
+      const skipHeaders = [
+        'host',
+        'connection',
+        'x-forwarded-host',
+        'x-forwarded-proto',
+        'if-none-match',      // Prevents 304 based on ETag
+        'if-modified-since',  // Prevents 304 based on Last-Modified
+      ];
+
+      if (!skipHeaders.includes(key.toLowerCase())) {
         headers.set(key, value);
       }
     });
@@ -77,6 +86,15 @@ async function proxyRequest(request: NextRequest, pathSegments: string[], method
         responseHeaders.set(key, value);
       }
     });
+
+    // Handle 304 Not Modified and 204 No Content (no body allowed)
+    if (response.status === 304 || response.status === 204) {
+      return new NextResponse(null, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: responseHeaders,
+      });
+    }
 
     // Handle HTML responses (like /api/docs)
     if (contentType.includes('text/html')) {
