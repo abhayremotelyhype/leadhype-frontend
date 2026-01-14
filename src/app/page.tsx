@@ -2077,7 +2077,7 @@ export default function DashboardPage() {
                           <Skeleton className="h-8 w-8 rounded-full" />
                         </div>
                       ) : (
-                        <ChartContainer config={emailAccountChartConfig} className="w-full h-full">
+                        <ChartContainer config={{}} className="w-full h-full">
                         <PieChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                           <Pie
                             data={(() => {
