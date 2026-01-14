@@ -24,7 +24,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { apiClient, ENDPOINTS, handleApiErrorWithToast } from '@/lib/api';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
@@ -169,7 +169,6 @@ const emailAccountChartConfig: ChartConfig = {
 
 export default function DashboardPage() {
   usePageTitle('Dashboard - LeadHype');
-  const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading, isAdmin } = useAuth();
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -941,11 +940,7 @@ export default function DashboardPage() {
   const applyFilters = async () => {
     // Validation: For specific campaigns mode, at least one campaign must be selected
     if (!(isAdmin && campaignScope === 'all') && selectedCampaigns.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "No Campaigns Selected",
-        description: "Please select at least one campaign to apply filters, or switch to 'All Campaigns' mode.",
-      });
+      toast.error("Please select at least one campaign to apply filters, or switch to 'All Campaigns' mode.");
       return;
     }
 
@@ -979,20 +974,13 @@ export default function DashboardPage() {
       }
       
       // Update toast message based on scope
-      const scopeDescription = isAdmin && campaignScope === 'all' 
+      const scopeDescription = isAdmin && campaignScope === 'all'
         ? 'All campaigns system-wide'
         : `${selectedUsers.length || 'all'} users, ${selectedClients.length || 'all'} clients, ${selectedCampaigns.length} campaigns`;
-        
-      toast({
-        title: "Filters Applied",
-        description: `Dashboard filtered by ${scopeDescription}, ${selectedEmailAccounts.length || 'all'} email accounts`,
-      });
+
+      toast.success(`Dashboard filtered by ${scopeDescription}, ${selectedEmailAccounts.length || 'all'} email accounts`);
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Filter Error",
-        description: "Failed to apply filters. Please try again.",
-      });
+      toast.error("Failed to apply filters. Please try again.");
     }
   };
 
@@ -1021,17 +1009,10 @@ export default function DashboardPage() {
     try {
       await loadDashboardData(false);
       await loadPerformanceTrendData(performancePeriod);
-      
-      toast({
-        title: "Filters Cleared",
-        description: "Dashboard restored to show all data",
-      });
+
+      toast.success("Dashboard restored to show all data");
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to clear filters. Please try again.",
-      });
+      toast.error("Failed to clear filters. Please try again.");
     }
   };
 
@@ -2035,16 +2016,20 @@ export default function DashboardPage() {
                         </div>
                       ) : (
                         <ChartContainer config={emailAccountChartConfig} className="w-full h-full">
-                        <BarChart 
+                        <BarChart
                           data={
-                            Object.entries(currentEmailAccountSummary.accountsByStatus).map(([status, data]) => ({
-                              name: status === '' ? 'Unknown' : status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
-                              value: data.count,
-                              percentage: data.percentage,
-                              fill: status === 'ACTIVE' ? 'var(--color-active)' : 
-                                   status === 'INACTIVE' ? 'var(--color-issues)' : 
-                                   'var(--color-paused)'
-                            }))
+                            Object.entries(currentEmailAccountSummary.accountsByStatus || {})
+                              .filter(([status]) => status in emailAccountChartConfig) // Only include statuses that have chart config
+                              .map(([status, data]) => ({
+                                name: status === 'active' ? 'Active' :
+                                      status === 'warming' ? 'Warming Up' :
+                                      status === 'paused' ? 'Paused' :
+                                      status === 'issues' ? 'Issues' :
+                                      status.charAt(0).toUpperCase() + status.slice(1),
+                                value: data.count,
+                                percentage: data.percentage,
+                                fill: `var(--color-${status})`
+                              }))
                           }
                           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                         >
