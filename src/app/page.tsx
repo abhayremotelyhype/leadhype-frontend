@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ProtectedRoute } from '@/components/protected-route';
+import { ChartErrorBoundary } from '@/components/chart-error-boundary';
 import { useAuth } from '@/contexts/auth-context';
 import { usePageTitle } from '@/hooks/use-page-title';
 import { PageHeader } from '@/components/page-header';
