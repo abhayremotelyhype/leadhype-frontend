@@ -69,7 +69,7 @@ ChartContainer.displayName = "Chart"
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
-    ([, config]) => config.theme || config.color
+    ([, config]) => config && (config.theme || config.color)
   )
 
   if (!colorConfig.length) {
@@ -85,11 +85,13 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
+    if (!itemConfig) return null
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
     return color ? `  --color-${key}: ${color};` : null
   })
+  .filter(Boolean)
   .join("\n")}
 }
 `
@@ -322,7 +324,7 @@ function getPayloadConfigFromPayload(
   payload: unknown,
   key: string
 ) {
-  if (typeof payload !== "object" || payload === null) {
+  if (!config || typeof payload !== "object" || payload === null) {
     return undefined
   }
 
@@ -350,9 +352,12 @@ function getPayloadConfigFromPayload(
     ] as string
   }
 
-  return configLabelKey in config
+  const result = configLabelKey in config
     ? config[configLabelKey]
     : config[key as keyof typeof config]
+
+  // Return undefined if config entry doesn't exist or is malformed
+  return result || undefined
 }
 
 export {
